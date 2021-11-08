@@ -15,6 +15,7 @@ library(GGally)
 library(broom)
 library(kableExtra)
 library(modelsummary)
+library(stargazer)
 ```
 
 ## Intro to ggpairs
@@ -73,3 +74,69 @@ penguin_lm_tidy
 Try using in-line code to refer to (print) the bill depth coefficient
 
 `r penguin_lm_tidy$estimate[3]`
+
+```{r}
+penguin_lm_glance <- glance(penguin_lm)
+
+penguin_lm_glance
+```
+
+### Try another model
+
+We have thought really hard, done a literature review, consulted with experts, deeply explored our data and decided that the three most critical variables to include in this model (with body mass as the outcome variable) are: 
+- flipper length
+- species
+- sex
+
+Task: create a multiple linear regression model using those 3 predictor variables
+
+Then take a look at the model outputs and interpret the coefficients with a neighbor
+
+```{r}
+penguin_lm_pt2 <- lm(body_mass_g ~ flipper_length_mm + species + sex, 
+                 data = penguins)
+
+penguin_lm_pt2
+```
+
+Aedlie is the reference species, female is the reference sex. 
+Mass(g) = -365.82 + 20.02(flipp(mm)) -87.63(Chinstrap) +836.26(gentoo) + 530.38(male)
+
+If everything else is the same, we expect a Gentoo penguin to be 836 g heavier than an Adelie penguin. 
+
+We had a female Chinstrap penguin with 180 mm flipper length. In our equation, it would be
+
+-365.82+20.02(180)-87.63
+
+Male adelie penguin with 200mm long flippers
+-365.82+20.02(200)+530.38
+
+### Use broom::augment() to see predicted values
+
+```{r}
+augment(penguin_lm_pt2)
+```
+
+## Use plot() to look at model diagnostics
+
+```{r}
+
+plot(penguin_lm_pt2)
+```
+
+- Conceptual understanding and expertise allows me to responsibly determine that penguin species, sex, and flipper length are reasonable predictor variables (make sure you're thinking hard about variables and different variable combinations)
+- diagnostic plots all check out for normality of residuals, homoscedasticity, and no worrisome outliers (<< last one is not as assumption)
+
+## Make output tables
+
+Using modelsummary:
+```{r}
+modelsummary(penguin_lm_pt2)
+```
+
+Using stargazer:
+
+```{r, results = "asis"}
+stargazer(penguin_lm_pt2, type = "html")
+```
+
