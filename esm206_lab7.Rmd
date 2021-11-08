@@ -1,0 +1,75 @@
+---
+title: "lab7"
+author: "Margaret Hammond"
+date: "11/8/2021"
+output: html_document
+---
+
+```{r setup, include = TRUE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+# Attach packages
+library(tidyverse)
+library(palmerpenguins)
+library(GGally)
+library(broom)
+library(kableExtra)
+library(modelsummary)
+```
+
+## Intro to ggpairs
+
+Use GGally::ggpairs() function to create a pairs plot
+
+```{r}
+ggpairs(penguins)
+```
+
+```{r}
+penguins %>% 
+  select(species, bill_length_mm:body_mass_g) %>% 
+  ggpairs(aes(color = species))
+
+ggplot(data = penguins, aes(x = bill_depth_mm, 
+                            y = body_mass_g, 
+                            group = species)) +
+  geom_point(aes(color = species)) +
+  geom_smooth(method = "lm")
+
+```
+
+## Multiple linear regression - penguins
+
+Use multiple linear regression to try to understand the relationship between multiple predictor variables and a single continuous outcome variable (body mass).
+
+```{r}
+penguin_lm <- lm(body_mass_g ~ flipper_length_mm + bill_depth_mm, 
+                 data = penguins)
+
+penguin_lm
+```
+How would you interpret this coefficient for flipper_length_mm?
+On average, we expect a 1 mm increase in flipper length to be associated with a 51g (THIS SHOULD BE IN LINE CODE REFERENCE) increase in body mass. 
+
+We would expect, on average, a 22.63 g increase in penguin body mass for each 1 mm increase in bill depth, if everything else is constant.
+
+Use `summary()` function to get more info
+
+```{r}
+summary(penguin_lm)
+```
+The adjusted R-squared value in this: 75% of variance in penguin body mass is explained by this model. 24% of body mass that isn't explained. There is no good or bad R squared value. 
+
+### Use `broom` functions tidy and glance
+
+Use broom::tidy to get the coefficient summary in the data drame. 
+Use broom::glance to get the model summary in a data frame.
+
+```{r}
+penguin_lm_tidy <- tidy(penguin_lm)
+penguin_lm_tidy
+```
+
+Try using in-line code to refer to (print) the bill depth coefficient
+
+`r penguin_lm_tidy$estimate[3]`
